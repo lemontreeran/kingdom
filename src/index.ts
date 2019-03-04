@@ -2,6 +2,7 @@ import { GraphQLServer } from 'graphql-yoga'
 import { importSchema } from 'graphql-import'
 import { Prisma } from './generated/prisma'
 import { Context } from './utils'
+import { Keypair } from '@kinecosystem/kin-sdk'
 
 const resolvers = {
   Query: {
@@ -20,10 +21,12 @@ const resolvers = {
   },
   Mutation: {
       signup(_, { username }, context: Context, info) {
+          const keypair = Keypair.random()
+
           const data = {
               username,
-              kinAccount '1234',
-              kinSeed '1234'
+              kinAccount: keypair.publicKey(),
+              kinSeed: secret
           }
 
           return context.db.mutation.createUser(

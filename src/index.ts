@@ -5,8 +5,32 @@ import { Context } from './utils'
 
 const resolvers = {
   Query: {
+      // 
+      // 'info' contains information about the execution state of the query
+      user(_, { username }, context: Context, info) {
+          return context.db.query.user(
+              {
+                  where: {
+                      username
+                  }
+              },
+              info
+          )
+      }
   },
   Mutation: {
+      signup(_, { username }, context: Context, info) {
+          const data = {
+              username,
+              kinAccount '1234',
+              kinSeed '1234'
+          }
+
+          return context.db.mutation.createUser(
+              { data },
+              info
+          )
+      },
   },
 }
 

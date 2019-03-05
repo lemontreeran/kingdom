@@ -2,6 +2,8 @@ import { GraphQLServer } from 'graphql-yoga'
 import { importSchema } from 'graphql-import'
 import { Prisma } from './generated/prisma'
 import { Context } from './utils'
+import { Keypair } from '@kinecosystem/kin-sdk'
+import { AES } from 'crypto-js'
 
 const resolvers = {
   Query: {
@@ -20,10 +22,19 @@ const resolvers = {
   },
   Mutation: {
       signup(_, { username }, context: Context, info) {
+          const keypair = Keypair.random()
+
+          const configCryptoScret = 'Do-not-put-value-in-here'
+
+          const secret = AES.encrypt(
+              keypair.secret(),
+              configCryptoScret
+          ).toString()
+
           const data = {
               username,
-              kinAccount '1234',
-              kinSeed '1234'
+              kinAccount: keypair.publicKey(),
+              kinSeed: secret
           }
 
           return context.db.mutation.createUser(

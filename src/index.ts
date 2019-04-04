@@ -2,8 +2,17 @@ import { GraphQLServer } from 'graphql-yoga'
 import { importSchema } from 'graphql-import'
 import { Prisma } from './generated/prisma'
 import { Context } from './utils'
-import { Keypair, Network, Server, TransactionBuilder, Operation } from '@kinecosystem/kin-sdk'
-import { AES } from 'crypto-js'
+import {
+    Asset,
+    Keypair,
+    Memo,
+    Network,
+    Server,
+    TransactionBuilder,
+    Operation } from '@kinecosystem/kin-sdk'
+import { AES, enc } from 'crypto-js'
+
+const ENVCryptoSecret = 'Do-not-put-value-in-here'
 
 const resolvers = {
   Query: {
@@ -24,11 +33,9 @@ const resolvers = {
       async signup(_, { username }, context: Context, info) {
           const keypair = Keypair.random()
 
-          const configCryptoScret = 'Do-not-put-value-in-here'
-
           const secret = AES.encrypt(
               keypair.secret(),
-              configCryptoScret
+              ENVCryptoSecret
           ).toString()
 
           const data = {

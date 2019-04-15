@@ -1,6 +1,6 @@
 # import User from './generated/prisma.graphql'
 
-type Transactions {
+type Transaction {
      id: ID!
      memo: String
 }
@@ -11,5 +11,5 @@ type Query {
 
 type Mutation {
      signup(username: String!): User!
-     payment(amount: String!, senderName String!, recepientName: String!, memo: String)：Transaction
+     payment(amount: String!, senderName: String!, recipientName: String!, memo: String): Transaction
 }

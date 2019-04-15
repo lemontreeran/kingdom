@@ -63,7 +63,8 @@ const resolvers = {
               // sure to also change the horizon hostname.
               // StellarSdk.Network.usePublicNetwork();
               Network.useTestNetwork();
-              const sourceKeyPair = Keypair.fromSecret('SDYYUXB7TNEFBIXJLCGP72SPUOIQSUXDO32A2U6T3USSFOVEQFHPPBCW')
+              //GAEN2UZMBZLUGGQ6RK5UUXVLY3IUOQAOOL3ESFHNJID6TLJN6FYUP6L5
+              const sourceKeyPair = Keypair.fromSecret('SBEDB22VBJ3MQCPPLPHN2JZMJO24H7D7TPHWFIBYS6NZC7NEXI76PLZL')
               const source = await kinServer.loadAccount(sourceKeyPair.publicKey())
 
               console.log('creating account in ledger', keypair.publicKey())
@@ -88,6 +89,58 @@ const resolvers = {
 
           return user
       },
+
+      async payment(_, { amount, senderName, recipientName, memo }, context: Context, info ){
+          const result = await context.db.query.users({
+              where: {
+                  username_in: [senderName, recipientName]
+              }
+          })
+
+          // const [recipient, sender] = result
+          const [sender, recipient] = result
+
+          const kinServer = new Server('https://horizon-testnet.kininfrastructure.com');
+          Network.useTestNetwork();
+
+          const signerKeys = Keypair.fromSecret(
+              // Use something like KMS in productions
+              AES.decrypt(
+                  sender.kinSeed,
+                  ENVCryptoSecret
+              ).toString(enc.Utf8)
+          )
+
+          const account = await kinServer.loadAccount(sender.kinAccount)
+
+          console.log('load sender account in ledger', sender.kinAccount)
+
+          const asset = Asset.native()
+
+          let transaction = new TransactionBuilder(account)
+              .addOperation(
+                  Operation.payment({
+                      destination: recipient.kinAccount,
+                      asset,
+                      amount
+                  }))
+              .setTimeout(180)
+              .addMemo(Memo.text('http://tiny.cc/d2t44y'))
+          // Wait a maximum of three minutes for the transaction
+              .build()
+
+          transaction.sign(signerKeys)
+
+          try {
+              const { hash } = await kinServer.submitTransaction(transaction)
+
+              return { id: hash }
+          } catch (e) {
+              console.log(`failure ${e}`)
+
+              throw e
+          }
+      }
   },
 }
 

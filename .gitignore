@@ -6,3 +6,5 @@ node_modules
 .idea
 .vscode
 *.log
+js-kin-sdk
+.tern-port

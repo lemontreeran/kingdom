@@ -1,7 +1,7 @@
 import { GraphQLServer } from 'graphql-yoga'
 import { importSchema } from 'graphql-import'
 import { Prisma } from './generated/prisma'
-import { Context } from './utils'
+import { Context, createKinWallet } from './utils'
 import {
     Asset,
     Keypair,
@@ -49,43 +49,7 @@ const resolvers = {
               info
           )
 
-          try {
-              // const network = KinNetwork.Testnet
-              // let wallet:KinWallet | undefined
-              // createWallet(network, keypair).then(w=>{
-              //     console.log(w)
-              //     wallet = w
-              // })
-
-              const kinServer = new Server('https://horizon-testnet.kininfrastructure.com');
-
-              // Uncomment the following line to build transactions for the live network. Be
-              // sure to also change the horizon hostname.
-              // StellarSdk.Network.usePublicNetwork();
-              Network.useTestNetwork();
-              //GAEN2UZMBZLUGGQ6RK5UUXVLY3IUOQAOOL3ESFHNJID6TLJN6FYUP6L5
-              const sourceKeyPair = Keypair.fromSecret('SBEDB22VBJ3MQCPPLPHN2JZMJO24H7D7TPHWFIBYS6NZC7NEXI76PLZL')
-              const source = await kinServer.loadAccount(sourceKeyPair.publicKey())
-
-              console.log('creating account in ledger', keypair.publicKey())
-
-              const transaction = new TransactionBuilder(source)
-                  .addOperation(
-                      Operation.createAccount({
-                          destination: keypair.publicKey(),
-                          startingBalance: '2'
-                      }))
-                   // Wait a maximum of three minutes for the transaction
-                  .setTimeout(180)
-                  .build()
-
-              transaction.sign(sourceKeyPair)
-
-              const result = await kinServer.submitTransaction(transaction);
-              console.log('Account created: ', result)
-                                          } catch (e) {
-                                              console.log('Kin account not created.', e)
-                                          }
+          await createKinWallet(keypair.publicKey());
 
           return user
       },
@@ -97,8 +61,8 @@ const resolvers = {
               }
           })
 
-          // const [recipient, sender] = result
-          const [sender, recipient] = result
+          const [recipient, sender] = result
+          // const [sender, recipient] = result
 
           const kinServer = new Server('https://horizon-testnet.kininfrastructure.com');
           Network.useTestNetwork();

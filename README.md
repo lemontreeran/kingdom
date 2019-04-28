@@ -20,7 +20,7 @@ We use this app to show the following item:
 `git clone git@github.com:abuiles/kingdom.git`
 
 # 2. Navigate to the project
-cd anchorx-api
+cd kingdom
 
 # 3. Start server (runs on http://localhost:4000) and open GraphQL Playground
 yarn dev
